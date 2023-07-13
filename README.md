@@ -1,5 +1,6 @@
 # utilities_etc
-Various utilities helping me do the work I created or borrowed.
+Various utilities helping me do the work.
+Some I created, some repurposed or found.
 
 ## RIMG
 > rimg
