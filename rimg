@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Check if at least one file name is provided as a command-line argument
+if [ $# -eq 0 ]; then
+    echo "Error: Please provide one or more file names."
+    exit 1
+fi
+
+# Iterate over each file name provided as an argument
+for file_path in "$@"; do
+    # Extract the file name and extension
+    file_name=$(basename "$file_path")
+    file_extension="${file_name##*.}"
+    file_name_without_ext="${file_name%.*}"
+    parent_dir=$(dirname "$file_path")
+
+    # make a directory to store the output files
+    output_dir="$parent_dir/$file_name_without_ext"
+    if [ -d "$output_dir" ]; then
+        echo "Output directory already exists. Please delete or rename the conflicting file."
+        exit 1
+    fi
+    mkdir -p "$output_dir"
+
+
+    # Generate the resized images
+    convert "$file_path" -resize 75% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_0_75.${file_extension}"
+    convert "$file_path" -resize 50% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_0_50.${file_extension}"
+    convert "$file_path" -resize 25% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_0_25.${file_extension}"
+
+    # Move and rename the original file
+    mv "$file_path" "$parent_dir/$file_name_without_ext/${file_name_without_ext}_1_0.${file_extension}"
+
+    # Rename the originalk
+    echo "Resizig succesful!"
+done
