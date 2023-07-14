@@ -25,3 +25,5 @@ This bash script will for each image passed as argument do the following:
 
 - Prompt if operation successfull for each file and prompt if errors occur.<br>
   (Errors checked for are: if arguments are missing, if passed files are images, if an output dir of given name exists already)
+
+  ![demo_rimg](./assets/rimg.webp)
