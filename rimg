@@ -6,8 +6,35 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# function to grab the image resolution as string
+add_resolution_to_name() {
+    local file=$1
+    local ext=$2
+    local real_path=$(realpath "$1")
+
+    resolution=$(identify -format "%w %h" "$real_path")
+    resolution="${resolution// /x}"
+
+    mv "$real_path" "${real_path}_${resolution}.${ext}"
+}
+
+# function to check passed in image arg is actually an image
+check_if_img() {
+    local path_to_check=$1
+
+    file_output=$(file "$path_to_check")
+    if [[ $file_output != *"image"* ]]; then
+        echo "Process failed. At least one of the files is not an image."
+        exit 1
+    fi
+}
+
 # Iterate over each file name provided as an argument
 for file_path in "$@"; do
+
+    # chk if img first
+    check_if_img "$file_path"
+
     # Extract the file name and extension
     file_name=$(basename "$file_path")
     file_extension="${file_name##*.}"
@@ -16,6 +43,8 @@ for file_path in "$@"; do
 
     # make a directory to store the output files
     output_dir="$parent_dir/$file_name_without_ext"
+
+    # check if name taken to prevent overwrites
     if [ -d "$output_dir" ]; then
         echo "Output directory already exists. Please delete or rename the conflicting file."
         exit 1
@@ -24,13 +53,18 @@ for file_path in "$@"; do
 
 
     # Generate the resized images
-    convert "$file_path" -resize 75% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_0_75.${file_extension}"
-    convert "$file_path" -resize 50% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_0_50.${file_extension}"
-    convert "$file_path" -resize 25% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_0_25.${file_extension}"
+    convert "$file_path" -resize 75% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_75"
+    convert "$file_path" -resize 50% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_50"
+    convert "$file_path" -resize 25% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_25"
 
     # Move and rename the original file
-    mv "$file_path" "$parent_dir/$file_name_without_ext/${file_name_without_ext}_1_0.${file_extension}"
+    mv "$file_path" "$parent_dir/$file_name_without_ext/${file_name_without_ext}_100"
 
-    # Rename the originalk
+    # final touch - add resulution and ext to each file name
+    for file in "$output_dir"/*; do
+        add_resolution_to_name "$file" "$file_extension"
+    done # end of inner loop
+
+    # Completion prompt
     echo "Resizig succesful!"
-done
+done # end of outer loop
