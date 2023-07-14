@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Check if at least one file name is provided as a command-line argument
+# chk if at least one file name is provided as a command-line argument
 if [ $# -eq 0 ]; then
     echo "Error: Please provide one or more file names."
     exit 1
@@ -18,7 +18,7 @@ add_resolution_to_name() {
     mv "$real_path" "${real_path}_${resolution}.${ext}"
 }
 
-# function to check passed in image arg is actually an image
+# function to chk passed in image arg is actually an image
 check_if_img() {
     local path_to_check=$1
 
@@ -29,13 +29,13 @@ check_if_img() {
     fi
 }
 
-# Iterate over each file name provided as an argument
+# iterate over each file name provided as an argument
 for file_path in "$@"; do
 
     # chk if img first
     check_if_img "$file_path"
 
-    # Extract the file name and extension
+    # grab the file name and extension
     file_name=$(basename "$file_path")
     file_extension="${file_name##*.}"
     file_name_without_ext="${file_name%.*}"
@@ -52,19 +52,19 @@ for file_path in "$@"; do
     mkdir -p "$output_dir"
 
 
-    # Generate the resized images
+    # resize images in the output dir
     convert "$file_path" -resize 75% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_75"
     convert "$file_path" -resize 50% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_50"
     convert "$file_path" -resize 25% "$parent_dir/$file_name_without_ext/${file_name_without_ext}_25"
 
-    # Move and rename the original file
+    # move and rename the original file
     mv "$file_path" "$parent_dir/$file_name_without_ext/${file_name_without_ext}_100"
 
     # final touch - add resulution and ext to each file name
     for file in "$output_dir"/*; do
         add_resolution_to_name "$file" "$file_extension"
-    done # end of inner loop
+    done # end of inner loo wp
 
     # Completion prompt
-    echo "Resizig succesful!"
+    echo "Resizig of "$file_name" succesful!"
 done # end of outer loop
