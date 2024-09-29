@@ -1,0 +1,73 @@
+html * {
+    color: #333;
+    background-color: #eee !important;
+}
+body {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 60vw;
+    margin-inline: clamp(2rem, 6vw, 8rem);
+}
+
+#page-header {
+    display: none;
+}
+
+section.markdown-body {
+    padding: 1rem 2rem;
+}
+
+/*nicely colored links*/
+a {
+  color: #164E63 !important;
+  font-weight: bold;
+}
+
+a:hover {
+  font-weight: bold;
+}
+
+.important {
+  color: #881337;
+  font-weight: bold;
+  background-color: #e7d0d7 !important;
+  padding: 1px 2px !important;
+  border-radius: 2px;
+}
+/*
+# TOM GORA B01665261
+<span><img id="me" src="./me.png"></span>
+<div id="uws"></div>
+*/
+h1:nth-of-type(1) {
+    width: fit-content;
+    margin-bottom: 6rem;
+    margin-left: 10rem;
+}
+
+#me{
+    position: absolute;
+    aspect-ratio: 1;
+    width: 8rem;
+    border-radius: 50%;
+    right: 50%
+    transform: translatex(-158%);
+    top: 2rem;
+    filter: contrast(0.5);
+    opacity: 0.4;
+    z-index: 1;
+}
+
+#uws {
+    content: url("https://www.easm.net/wp-content/uploads/2018/06/new-UniWestScot.png");
+    width: 7rem;
+    position: absolute;
+    right: 2rem;
+    top: 3rem;
+   opacity: 0.8;
+    
+}
+
+
+
