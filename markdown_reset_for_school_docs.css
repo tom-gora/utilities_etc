@@ -1,73 +1,86 @@
 html * {
-    color: #333;
-    background-color: #eee !important;
+  color: #464b52;
+  background-color: #eee !important;
 }
+
+/*fix width and text body style*/
 body {
-    position: relative;
-    display: grid;
-    place-items: center;
-    min-width: 60vw;
-    margin-inline: clamp(2rem, 6vw, 8rem);
+  text-wrap: pretty;
+  white-space: no-wrap;
+  min-width: 100svw;
+  margin-inline: clamp(1rem, 6vw, 3rem);
 }
 
+/*no title with filename for clean print*/
 #page-header {
-    display: none;
+  display: none;
 }
 
+/*rid of default borders used in my MD previewer*/
 section.markdown-body {
-    padding: 1rem 2rem;
+  max-width: 64ch;
+  padding: 1rem 2rem;
+  position: relative;
+  border: none;
 }
 
 /*nicely colored links*/
 a {
-  color: #164E63 !important;
+  color: #5c8392 !important;
   font-weight: bold;
 }
 
 a:hover {
+  color: #123e4f !important;
   font-weight: bold;
 }
 
+/*special importance spans*/
 .important {
-  color: #881337;
+  color: #4f123e;
   font-weight: bold;
-  background-color: #e7d0d7 !important;
-  padding: 1px 2px !important;
+  background-color: #dcd0d8 !important;
+  padding: 2px 4px !important;
   border-radius: 2px;
 }
 /*
-# TOM GORA B01665261
-<span><img id="me" src="./me.png"></span>
+## TOM GORA
+## B01665261
+<div id="me"></div>
 <div id="uws"></div>
 */
-h1:nth-of-type(1) {
-    width: fit-content;
-    margin-bottom: 6rem;
-    margin-left: 10rem;
+h2:nth-of-type(1),
+h2:nth-of-type(2) {
+  border: none;
+  color: #eee !important;
+  background-color: #464b52 !important;
+  width: 70%;
+  padding-left: 10rem;
+  padding-block: 1.4rem;
+  border-radius: 0.5rem;
 }
 
-#me{
-    position: absolute;
-    aspect-ratio: 1;
-    width: 8rem;
-    border-radius: 50%;
-    right: 50%
-    transform: translatex(-158%);
-    top: 2rem;
-    filter: contrast(0.5);
-    opacity: 0.4;
-    z-index: 1;
+h2:nth-of-type(2) {
+  margin-top: -3rem;
+  margin-bottom: 6rem;
+}
+
+#me {
+  content: url("https://avatars.githubusercontent.com/u/109661595?v=4");
+  position: absolute;
+  aspect-ratio: 1;
+  width: 7rem;
+  left: 3rem;
+  top: 3.25rem;
+  filter: contrast(0.7);
+  z-index: 1;
 }
 
 #uws {
-    content: url("https://www.easm.net/wp-content/uploads/2018/06/new-UniWestScot.png");
-    width: 7rem;
-    position: absolute;
-    right: 2rem;
-    top: 3rem;
-   opacity: 0.8;
-    
+  content: url("https://www.easm.net/wp-content/uploads/2018/06/new-UniWestScot.png");
+  width: 7rem;
+  position: absolute;
+  right: 2rem;
+  top: 3rem;
+  opacity: 0.7;
 }
-
-
-
