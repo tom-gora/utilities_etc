@@ -23,7 +23,7 @@ usage() {
 }
 
 # test flags passed
-while getopts "p:" opt 2>/dev/null; do
+while getopts "hp:" opt 2>/dev/null; do
 	if [ "$opt" = "p" ]; then
 		if [[ "$OPTARG" =~ ^[0-9]+$ ]] && [ "$OPTARG" -ge 1 ] && [ "$OPTARG" -le 65535 ]; then
 			# if correct usage and port is numeric and valid reassign it
