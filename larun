@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# log identifiers
+PHP_LOG="\e[35m[PHP]\e[0m "
+NPM_LOG="\e[34m[NPM]\e[0m "
+ERR_LOG="\e[31m[ERROR]\e[0m "
+
+# go into project dir
+cd "$(pwd)" || {
+	echo -e "${ERR_LOG}Failed to enter the directory to be served."
+	exit 1
+}
+
+# rudimentary check if project can even run artisan and npm part of the project been initialized
+if [[ ! -f "artisan" ]]; then
+	echo -e "${ERR_LOG}artisan not found in the current directory."
+	exit 1
+fi
+
+if [[ ! -f "package.json" ]]; then
+	echo -e "${ERR_LOG}package.json not found in the current directory."
+	exit 1
+fi
+
+# start both dev servers and store the PIDs
+php artisan serve --port=6969 &> >(while IFS= read -r line; do echo -e "${PHP_LOG} $line"; done) &
+PHP_PID=$!
+npm run dev &> >(while IFS= read -r line; do echo -e "${NPM_LOG} $line"; done) &
+NPM_PID=$!
+
+# wait and monotor both processes
+wait -n $PHP_PID $NPM_PID
+
+# if any dies/exits kkill the whole thing and exit appropriately
+if ! kill -0 $PHP_PID 2>/dev/null; then
+	echo -e "${ERR_LOG} PHP server exited."
+	kill $NPM_PID
+elif ! kill -0 $NPM_PID 2>/dev/null; then
+	echo -e "${ERR_LOG} NPM server exited."
+	kill $PHP_PID
+fi
+
+echo -e "${ERR_LOG} Dev environment exited."
+exit 1
