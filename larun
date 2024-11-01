@@ -15,7 +15,10 @@ ENV_FOUND=true
 
 # print usage msg
 usage() {
-	echo -e "${1}Usage: larun -p [port] to pass a port\n           or no args for default 8000."
+	echo -e "${1}Usage:"
+	echo -e "           larun               no flags|args to run on default port 8000."
+	echo -e "           larun -p [port]     to pass a port"
+	echo -e "           larun -h            print this message."
 	exit 1
 }
 
@@ -30,6 +33,8 @@ while getopts "p:" opt 2>/dev/null; do
 			echo -e "${ERR_LOG} Invalid port number: $OPTARG"
 			usage "$INFO_LOG"
 		fi
+	elif [ "$opt" = "h" ]; then
+		usage "$INFO_LOG"
 	elif [ "$opt" = "?" ]; then
 		# invalid flag route
 		echo -e "${ERR_LOG} Invalid option: -${1} ${OPTARG}"
