@@ -1,9 +1,87 @@
 #!/bin/bash
 
 # log identifiers
-PHP_LOG="\e[35m[PHP]\e[0m "
-NPM_LOG="\e[34m[NPM]\e[0m "
-ERR_LOG="\e[31m[ERROR]\e[0m "
+PHP_LOG="\e[35m[PHP]\e[0m     "
+NPM_LOG="\e[34m[NPM]\e[0m     "
+ERR_LOG="\e[31m[ERROR]\e[0m   "
+WARN_LOG="\e[33m[WARNING]\e[0m "
+INFO_LOG="\e[32m[INFO]\e[0m     "
+
+PORT=8000
+PORT_OCCUPIED=false
+ARTISAN_FOUND=true
+NPM_FOUND=true
+ENV_FOUND=true
+
+# print usage msg
+usage() {
+	echo -e "${1}Usage: larun -p [port] to pass a port\n           or no args for default 8000."
+	exit 1
+}
+
+# test flags passed
+while getopts "p:" opt 2>/dev/null; do
+	if [ "$opt" = "p" ]; then
+		if [[ "$OPTARG" =~ ^[0-9]+$ ]] && [ "$OPTARG" -ge 1 ] && [ "$OPTARG" -le 65535 ]; then
+			# if correct usage and port is numeric and valid reassign it
+			PORT=$OPTARG
+		else
+			# invalid port route
+			echo -e "${ERR_LOG} Invalid port number: $OPTARG"
+			usage "$INFO_LOG"
+		fi
+	elif [ "$opt" = "?" ]; then
+		# invalid flag route
+		echo -e "${ERR_LOG} Invalid option: -${1} ${OPTARG}"
+		usage "$INFO_LOG"
+	elif [ "$opt" = ":" ]; then
+		# missing flag args route
+		echo -e "${ERR_LOG} Option -${OPTARG} requires an argument."
+		usage "$INFO_LOG"
+	fi
+done
+
+# test args if anything passed rather than 1) a flag 2) nothing
+shift $((OPTIND - 1))
+if [ $# -gt 0 ]; then
+	echo -e "${ERR_LOG} Invalid arguments: $*"
+	usage "$INFO_LOG"
+fi
+
+# test if port in use and set variables to use in errors
+if lsof -i :"$PORT" >/dev/null; then
+	PORT_OCCUPIED=true
+	PORT_PID=$(lsof -ti :"$PORT")
+	PORT_CMD=$(lsof -n -i :"$PORT" | tail -n1 | cut -d" " -f1)
+fi
+
+# handle port in usse route
+if [ "$PORT_OCCUPIED" = true ]; then
+	echo -e "${WARN_LOG} Port $PORT is occupied. Kill process ($PORT_CMD) before starting new dev enviroment? [Y/n]"
+	read -r choice
+	if [ "$choice" = "Y" ] || [ "$choice" = "y" ]; then
+		# HACK: Just extract any of the php processes involed in running dev server
+		# because multiple rows get returned and kill will not accept this sort of input
+		# killing one will take down entire artisan server
+		KILLABLE=$(echo "$PORT_PID" | sed -n '1p')
+		kill -9 "$KILLABLE"
+	elif [ "$choice" = "N" ] || [ "$choice" = "n" ]; then
+		echo -e "${INFO_LOG} User choice: exit due to occupied port."
+		exit 1
+	else
+		echo -e "${ERR_LOG} Invalid choice. Exiting."
+		exit 1
+	fi
+fi
+
+# adjust env variable .env ahead of running dev environment
+# to allow vite communicate with app correctly
+if [[ -f ".env" ]]; then
+	sed -i "s|^APP_URL=.*|APP_URL=http://localhost:$PORT|g" .env
+	echo -e "${INFO_LOG}APP_URL updated to http://localhost:$PORT in .env file"
+else
+	ENV_FOUND=false
+fi
 
 # go into project dir
 cd "$(pwd)" || {
@@ -11,22 +89,41 @@ cd "$(pwd)" || {
 	exit 1
 }
 
-# rudimentary check if project can even run artisan and npm part of the project been initialized
+# rudimentary check if project can even run artisan and npm been initialized
 if [[ ! -f "artisan" ]]; then
-	echo -e "${ERR_LOG}artisan not found in the current directory."
-	exit 1
+	ARTISAN_FOUND=false
+fi
+if [[ ! -f "package.json" ]]; then
+	NPM_FOUND=false
 fi
 
-if [[ ! -f "package.json" ]]; then
-	echo -e "${ERR_LOG}package.json not found in the current directory."
-	exit 1
-fi
+# batch report what is missing and exit
+missing_requirements() {
+	if [[ $1 = false || $2 = false || $3 = false ]]; then
+		if [[ $1 = false ]]; then
+			echo -e "${ERR_LOG} \`.env\` file not found in the current directory.\n           Fix this to run dev servers correctly."
+		fi
+		if [[ $2 = false ]]; then
+			echo -e "${ERR_LOG}\`artisan\` not found in the current directory."
+		fi
+		if [[ $2 = false ]]; then
+			echo -e "${ERR_LOG}\`package.json\` not found in the current directory."
+		fi
+		exit 1
+	fi
+}
+
+missing_requirements $ENV_FOUND $ARTISAN_FOUND $NPM_FOUND
 
 # start both dev servers and store the PIDs
-php artisan serve --port=6969 &> >(while IFS= read -r line; do echo -e "${PHP_LOG} $line"; done) &
+php artisan serve --port="$PORT" &> >(while IFS= read -r line; do echo -e "${PHP_LOG} $line"; done) &
 PHP_PID=$!
 npm run dev &> >(while IFS= read -r line; do echo -e "${NPM_LOG} $line"; done) &
 NPM_PID=$!
+
+# delay until servers are up and open the url
+sleep 2
+xdg-open http://localhost:"$PORT"
 
 # wait and monotor both processes
 wait -n $PHP_PID $NPM_PID
