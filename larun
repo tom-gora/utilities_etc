@@ -5,7 +5,7 @@ PHP_LOG="\e[35m[PHP]\e[0m     "
 NPM_LOG="\e[34m[NPM]\e[0m     "
 ERR_LOG="\e[31m[ERROR]\e[0m   "
 WARN_LOG="\e[33m[WARNING]\e[0m "
-INFO_LOG="\e[32m[INFO]\e[0m     "
+INFO_LOG="\e[32m[INFO]\e[0m    "
 
 PORT=8000
 PORT_OCCUPIED=false
@@ -30,18 +30,18 @@ while getopts "hp:" opt 2>/dev/null; do
 			PORT=$OPTARG
 		else
 			# invalid port route
-			echo -e "${ERR_LOG} Invalid port number: $OPTARG"
+			echo -e "${ERR_LOG}Invalid port number: $OPTARG"
 			usage "$INFO_LOG"
 		fi
 	elif [ "$opt" = "h" ]; then
 		usage "$INFO_LOG"
 	elif [ "$opt" = "?" ]; then
 		# invalid flag route
-		echo -e "${ERR_LOG} Invalid option: -${1} ${OPTARG}"
+		echo -e "${ERR_LOG}Invalid option: -${1} ${OPTARG}"
 		usage "$INFO_LOG"
 	elif [ "$opt" = ":" ]; then
 		# missing flag args route
-		echo -e "${ERR_LOG} Option -${OPTARG} requires an argument."
+		echo -e "${ERR_LOG}Option -${OPTARG} requires an argument."
 		usage "$INFO_LOG"
 	fi
 done
@@ -49,7 +49,7 @@ done
 # test args if anything passed rather than 1) a flag 2) nothing
 shift $((OPTIND - 1))
 if [ $# -gt 0 ]; then
-	echo -e "${ERR_LOG} Invalid arguments: $*"
+	echo -e "${ERR_LOG}Invalid arguments: $*"
 	usage "$INFO_LOG"
 fi
 
@@ -62,7 +62,7 @@ fi
 
 # handle port in usse route
 if [ "$PORT_OCCUPIED" = true ]; then
-	echo -e "${WARN_LOG} Port $PORT is occupied. Kill process ($PORT_CMD) before starting new dev enviroment? [Y/n]"
+	echo -e "${WARN_LOG}Port $PORT is occupied. Kill process ($PORT_CMD) before starting new dev enviroment? [Y/n]"
 	read -r choice
 	if [ "$choice" = "Y" ] || [ "$choice" = "y" ]; then
 		# HACK: Just extract any of the php processes involed in running dev server
@@ -71,10 +71,10 @@ if [ "$PORT_OCCUPIED" = true ]; then
 		KILLABLE=$(echo "$PORT_PID" | sed -n '1p')
 		kill -9 "$KILLABLE"
 	elif [ "$choice" = "N" ] || [ "$choice" = "n" ]; then
-		echo -e "${INFO_LOG} User choice: exit due to occupied port."
+		echo -e "${INFO_LOG}User choice: exit due to occupied port."
 		exit 1
 	else
-		echo -e "${ERR_LOG} Invalid choice. Exiting."
+		echo -e "${ERR_LOG}Invalid choice. Exiting."
 		exit 1
 	fi
 fi
@@ -106,7 +106,7 @@ fi
 missing_requirements() {
 	if [[ $1 = false || $2 = false || $3 = false ]]; then
 		if [[ $1 = false ]]; then
-			echo -e "${ERR_LOG} \`.env\` file not found in the current directory.\n           Fix this to run dev servers correctly."
+			echo -e "${ERR_LOG}\`.env\` file not found in the current directory.\n           Fix this to run dev servers correctly."
 		fi
 		if [[ $2 = false ]]; then
 			echo -e "${ERR_LOG}\`artisan\` not found in the current directory."
@@ -121,9 +121,9 @@ missing_requirements() {
 missing_requirements $ENV_FOUND $ARTISAN_FOUND $NPM_FOUND
 
 # start both dev servers and store the PIDs
-php artisan serve --port="$PORT" &> >(while IFS= read -r line; do echo -e "${PHP_LOG} $line"; done) &
+php artisan serve --port="$PORT" &> >(while IFS= read -r line; do echo -e "${PHP_LOG}$line"; done) &
 PHP_PID=$!
-npm run dev &> >(while IFS= read -r line; do echo -e "${NPM_LOG} $line"; done) &
+npm run dev &> >(while IFS= read -r line; do echo -e "${NPM_LOG}$line"; done) &
 NPM_PID=$!
 
 # delay until servers are up and open the url
@@ -135,12 +135,12 @@ wait -n $PHP_PID $NPM_PID
 
 # if any dies/exits kkill the whole thing and exit appropriately
 if ! kill -0 $PHP_PID 2>/dev/null; then
-	echo -e "${ERR_LOG} PHP server exited."
+	echo -e "${ERR_LOG}PHP server exited."
 	kill $NPM_PID
 elif ! kill -0 $NPM_PID 2>/dev/null; then
-	echo -e "${ERR_LOG} NPM server exited."
+	echo -e "${ERR_LOG}NPM server exited."
 	kill $PHP_PID
 fi
 
-echo -e "${ERR_LOG} Dev environment exited."
+echo -e "${ERR_LOG}Dev environment exited."
 exit 1
