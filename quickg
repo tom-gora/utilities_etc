@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+repo_dir=$(basename "$(pwd)")
+
+git init
+
+check_case() {
+	[[ $1 == [[:upper:]] ]] && echo 0 || echo 1
+}
+dif_case() {
+	local arg="$1"
+	for ((i = 0; i < ${#arg}; i++)); do
+		if [[ $i -eq 0 ]]; then
+			helper="${arg:$i:1}"
+		elif ([[ $(check_case "${arg:$i:1}") -eq 0 ]] && [[ $(check_case "${arg:$((i + 1))}:1}") -eq 1 ]]); then
+			helper+=" ${arg:$i:1}"
+		else
+			helper+="${arg:$i:1}"
+		fi
+	done
+	echo "$helper"
+}
+
+process_dir_name() {
+	local arg="$*"
+	for i in '_' '-' ' '; do
+		if [[ $arg == *$i* ]]; then
+			echo "$arg" | tr '[:upper:]' '[:lower:]' | tr -s "${i}" ' '
+			return
+		fi
+	done
+	dif_case "$arg" | tr '[:upper:]' '[:lower:]'
+}
+
+out=$(process_dir_name "$repo_dir" | tr -s ' ' '-')
+readme
+git add .
+git commit -m "Initial commit"
+gh repo create "$out" --private --source=. --remote=origin --push
+
+url=$(gh api user | jq '.html_url')
+
+echo -e "Initiated repository and a remote at:\n -> $url/$out"

@@ -22,6 +22,7 @@
 <pagebreak></pagebreak>
 <spacer></spacer>
 
+<!------------------------------------------------->
 <!--smaller/larger screenshots-->
 <div class="smaller-screenshots">   
 ![smaller alt](./img/smaller)

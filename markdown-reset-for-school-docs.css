@@ -64,6 +64,7 @@ frontpage::before {
   font-weight: bold;
   content: "01";
   z-index: 10;
+  transform: translateY(58rem) !important;
 }
 
 /*pagebreaks with some space before and after (plus pagination via CSS counter)*/
@@ -74,6 +75,7 @@ frontpage::before {
 <spacer></spacer>
 */
 pagebreak + spacer {
+  position: relative;
   width: 103%;
   background-color: transparent !important;
   height: 1rem;
@@ -89,7 +91,7 @@ pagebreak + spacer::before {
   font-weight: bold;
   content: counter(pager, decimal-leading-zero);
   z-index: 10;
-  transform: translateY(1rem) !important;
+  transform: translateY(59rem) !important;
   float: inline-end !important;
 }
 
@@ -111,7 +113,7 @@ a:hover {
   font-weight: bold;
   background-color: #dcd0d8 !important;
   padding: 2px 4px !important;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 /*TITLE PAGE HEADER*/
@@ -151,6 +153,11 @@ th,
   padding-inline: 0.25rem;
 }
 
+#toc > div:not(.toc_subpoint) span:first-of-type {
+  color: #1c1e21 !important;
+  text-decoration: underline;
+}
+
 #toc .toc_subpoint {
   padding-left: 1.25rem;
 }
@@ -168,7 +175,7 @@ h5[id^="figure"] {
   aspect-ratio: 1;
   width: 7rem;
   left: 3rem;
-  top: 12.5rem;
+  top: 17.5rem;
   filter: contrast(0.7);
   z-index: 1;
 }
